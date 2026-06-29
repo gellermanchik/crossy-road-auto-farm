@@ -17,6 +17,13 @@ reward in Crossy Road every minute, around the clock, while you do something els
 
 <img src="docs/hero.jpg" alt="Crossy Farm — auto-farm Crossy Road coins on macOS" width="100%">
 
+<br><br>
+
+<a href="https://github.com/gellermanchik/crossy-road-auto-farm/releases/download/v1.0/Crossy-Farm-1.0.dmg"><img src="https://img.shields.io/badge/⬇_Download_the_app-Crossy_Farm_1.0_(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white" alt="Download Crossy Farm"></a>
+
+<br>
+<sub>👆 That's the only file you need to download. Everything else in this repo is just the source code.</sub>
+
 </div>
 
 ---

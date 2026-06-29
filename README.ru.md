@@ -18,6 +18,13 @@
 
 <img src="docs/hero.jpg" alt="Crossy Farm — автофарм монет Crossy Road на macOS" width="100%">
 
+<br><br>
+
+<a href="https://github.com/gellermanchik/crossy-road-auto-farm/releases/download/v1.0/Crossy-Farm-1.0.dmg"><img src="https://img.shields.io/badge/⬇_Download_app-Crossy_Farm_1.0_(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white" alt="Скачать Crossy Farm"></a>
+
+<br>
+<sub>👆 Это единственный файл, который нужно скачать. Всё остальное здесь — исходный код для разработчиков.</sub>
+
 </div>
 
 ---

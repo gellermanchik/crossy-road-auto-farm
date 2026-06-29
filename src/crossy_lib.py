@@ -139,17 +139,18 @@ def find_orange_button(img) -> tuple[float, float] | None:
     return (sx / n / w, sy / n / h)
 
 
-def ocr_blocks(img) -> list:
-    """Recognized text lines: {text, cx, cy (fractions from top-left), conf}."""
+# Two language groups. A single big set hurts Latin recognition (the "FREE" button
+# stops being read), so we OCR in two passes and merge: Latin/Cyrillic, then CJK/Arabic.
+_LANGS_LATIN = ["en", "ru"]                              # EN/FR/DE/IT/ES/PT/ID + RU
+_LANGS_CJK = ["zh-Hans", "zh-Hant", "ja", "ko", "ar"]    # Chinese/Japanese/Korean/Arabic
+
+
+def _ocr_pass(img, langs) -> list:
     req = Vision.VNRecognizeTextRequest.alloc().init()
     req.setRecognitionLevel_(0)  # Accurate
     req.setUsesLanguageCorrection_(False)
     try:
-        # "en" reliably reads all Latin-script game languages (EN/FR/DE/IT/ES/PT/ID),
-        # "ru" adds Cyrillic. Keep this set SMALL: adding CJK/Arabic here noticeably
-        # hurts Latin recognition (e.g. the "FREE" button stops being read). For a
-        # CJK/Arabic game UI, add that one language code here and rebuild.
-        req.setRecognitionLanguages_(["en", "ru"])
+        req.setRecognitionLanguages_(langs)
     except Exception:
         pass
     handler = Vision.VNImageRequestHandler.alloc().initWithCGImage_options_(img, {})
@@ -169,6 +170,13 @@ def ocr_blocks(img) -> list:
             }
         )
     return out
+
+
+def ocr_blocks(img) -> list:
+    """Recognized text lines from two OCR passes (Latin/Cyrillic + CJK/Arabic),
+    merged. This reads the game's buttons in all 13 of its languages without the
+    large-language-set penalty that breaks Latin recognition."""
+    return _ocr_pass(img, _LANGS_LATIN) + _ocr_pass(img, _LANGS_CJK)
 
 
 def find_text(blocks: list, needle: str) -> tuple[float, float] | None:

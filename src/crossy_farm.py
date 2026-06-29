@@ -106,10 +106,9 @@ def _slide_back(stop_check, win: dict) -> None:
 
 
 def _is_death_screen(blocks: list) -> bool:
-    """Death screen detection. Primary: the record label is shown (e.g. "TOP" /
-    "ЛУЧШИЕ"). Fallback: the free-reward button is on screen — this makes it
-    language-proof, because if the record word isn't recognized, the FREE button
-    (matched in many languages) still gives the death screen away."""
+    """Death screen detection: the rank label is shown (TOP / 最高 / ЛУЧШИЕ / …) —
+    now recognized in every language thanks to the dual-pass OCR — OR the FREE
+    reward button is on screen (a second, independent signal)."""
     has_record = any(
         any(m in b["text"].upper() for m in DEATH_MARKERS) for b in blocks
     )

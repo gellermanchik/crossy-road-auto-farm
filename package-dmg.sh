@@ -11,6 +11,7 @@
 set -euo pipefail
 
 APP_NAME="Crossy Farm"
+VOLNAME="Install Crossy Farm"   # the mounted disk is named distinctly from the app
 VERSION="1.2"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST="$HERE/dist"
@@ -25,12 +26,12 @@ rm -f "$DMG"
 
 if command -v dmgbuild >/dev/null 2>&1; then
   echo "==> Building DMG with dmgbuild (custom background + layout)"
-  dmgbuild -s packaging/dmg_settings.py "$APP_NAME" "$DMG"
+  dmgbuild -s packaging/dmg_settings.py "$VOLNAME" "$DMG"
 
 elif command -v create-dmg >/dev/null 2>&1; then
   echo "==> dmgbuild not found — using create-dmg (needs Finder/GUI session)"
   create-dmg \
-    --volname "$APP_NAME" \
+    --volname "$VOLNAME" \
     --background docs/dmg-background.png \
     --window-pos 200 120 --window-size 640 400 \
     --icon-size 140 --text-size 13 \
@@ -45,7 +46,7 @@ else
   STAGE="$(mktemp -d)"
   cp -R "$APP" "$STAGE/"
   ln -s /Applications "$STAGE/Applications"
-  hdiutil create -volname "$APP_NAME" -srcfolder "$STAGE" -ov -format UDZO "$DMG"
+  hdiutil create -volname "$VOLNAME" -srcfolder "$STAGE" -ov -format UDZO "$DMG"
   rm -rf "$STAGE"
 fi
 

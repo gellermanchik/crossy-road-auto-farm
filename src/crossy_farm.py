@@ -49,6 +49,10 @@ FREE_MARKERS = (
     "GRATUIT", "GRATIS", "GRÁTIS", "GRATUITO", "KOSTENLOS",  # FR/ES·IT·ID/PT/IT/DE
     "無料", "무료", "免费", "免費", "مجان",                # JA/KO/ZH-s/ZH-t/AR
 )
+# The big "CROSSY ROAD" logo is shown ONLY on the main menu, never on the death
+# screen. The Latin letters are identical in every language, so OCR catches it even
+# when garbled ("CROASY"). This is the language-proof way to tell the two apart.
+MENU_MARKERS = ("CROSS", "CROAS", "ROAD", "ROAL", "ROAO")
 
 
 def setup_logging() -> logging.Logger:
@@ -105,18 +109,31 @@ def _slide_back(stop_check, win: dict) -> None:
         _sleep(BACK_INTERVAL, stop_check)
 
 
-def _is_death_screen(blocks: list) -> bool:
-    """Death screen detection: the rank label is shown (TOP / 最高 / ЛУЧШИЕ / …) —
-    now recognized in every language thanks to the dual-pass OCR — OR the FREE
-    reward button is on screen (a second, independent signal)."""
-    has_record = any(
-        any(m in b["text"].upper() for m in DEATH_MARKERS) for b in blocks
-    )
-    return has_record or _find_free(blocks) is not None
+def _is_main_menu(blocks: list) -> bool:
+    """Main menu shows the big CROSSY ROAD logo in the center; the death screen does
+    not. Matching the (Latin) logo separates 'play again' from 'collect the reward'
+    in EVERY language — no reliance on localized words."""
+    return any(any(m in b["text"].upper() for m in MENU_MARKERS) for b in blocks)
+
+
+def _find_reward(img, blocks) -> tuple[float, float] | None:
+    """Find the once-a-minute reward button. Primary: the FREE text marker (works in
+    many languages) — only if active (blue, not gray). Fallback: detect the blue
+    reward banner by color, which is language-proof. Return click point or None."""
+    free = _find_free(blocks)
+    if free is not None and cl.is_free_active(img, *free):
+        return free
+    return cl.find_reward_button(img)
 
 
 def farm_loop(stop_check, on_reward, log: logging.Logger) -> None:
-    """Main state-driven loop. stop_check()->bool; on_reward(total)->None."""
+    """Main state-driven loop. stop_check()->bool; on_reward(total)->None.
+
+    The two screens are told apart by the CROSSY ROAD logo (menu only), NOT by
+    localized text, so it works in every game language:
+      - main menu              -> start a run and dump it;
+      - orange button, no logo -> death screen: grab the reward, go to menu, wait;
+      - no orange button       -> a run is in progress: keep hopping back."""
     rewards = 0
     while not stop_check():
         win = cl.find_game_window()
@@ -133,11 +150,17 @@ def farm_loop(stop_check, on_reward, log: logging.Logger) -> None:
             continue
         blocks = cl.ocr_blocks(img)
 
-        if _is_death_screen(blocks):
-            # Death screen: collect the reward -> orange (to menu) -> wait cooldown in menu.
-            free = _find_free(blocks)
-            if free is not None and cl.is_free_active(img, *free):
-                cl.click_rel(win, *free)
+        if _is_main_menu(blocks):
+            # Main menu (CROSSY ROAD logo): start a run and dump it backwards.
+            _press_orange(win, log, "Play — starting a run")
+            _sleep(RACE_LOAD, stop_check)
+            _slide_back(stop_check, win)
+            _sleep(DEATH_WAIT, stop_check)
+        elif cl.find_orange_button(img) is not None:
+            # Orange button without the logo => death screen. Grab reward if ready.
+            reward = _find_reward(img, blocks)
+            if reward is not None:
+                cl.click_rel(win, *reward)
                 rewards += 1
                 log.info("reward collected (total: %s, coins: %s)",
                          rewards, rewards * COINS_PER_REWARD)
@@ -146,12 +169,6 @@ def farm_loop(stop_check, on_reward, log: logging.Logger) -> None:
             _press_orange(win, log, "orange button — back to main menu")
             log.info("waiting %s s in menu (reward cooldown)", IDLE_SECONDS)
             _sleep(IDLE_SECONDS, stop_check)
-        elif cl.find_orange_button(img) is not None:
-            # Main menu: start a run and dump it backwards 5 times.
-            _press_orange(win, log, "Play — starting a run")
-            _sleep(RACE_LOAD, stop_check)
-            _slide_back(stop_check, win)
-            _sleep(DEATH_WAIT, stop_check)
         else:
             # A run is in progress (no orange button) — keep hopping back.
             _slide_back(stop_check, win)

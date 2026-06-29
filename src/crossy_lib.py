@@ -211,3 +211,29 @@ def is_free_active(img, rx: float, ry: float) -> bool:
     """Is the FREE reward button active (blue)? A gray one (used/cooldown) -> False."""
     r, _g, b = _avg_color(img, rx, ry)
     return (b - r) > 20
+
+
+def find_reward_button(img) -> tuple[float, float] | None:
+    """Find the once-a-minute reward by COLOR (language-proof, no text needed): the
+    reward banner is a wide horizontal BLUE strip across the middle of the death
+    screen. Returns the RIGHT button (the one with the character) as window
+    fractions, or None when there's no banner (reward not ready yet)."""
+    buf, w, h, bpr = _pixels(img)
+    best_y, best_frac = None, 0.0
+    step = 4
+    for y in range(int(0.40 * h), int(0.60 * h), step):
+        base = y * bpr
+        blue = total = 0
+        for x in range(0, w, step):
+            i = base + x * 4
+            b, g, r = buf[i], buf[i + 1], buf[i + 2]  # BGRA
+            total += 1
+            # specific cyan-blue of the banner: high blue, low red (not sky/purple)
+            if (b - r) > 45 and b > 140 and r < 130:
+                blue += 1
+        frac = blue / total if total else 0.0
+        if frac > best_frac:
+            best_frac, best_y = frac, y
+    if best_frac < 0.45:  # no wide blue banner -> reward not ready
+        return None
+    return (0.56, best_y / h)  # right (character) button of the banner

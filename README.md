@@ -13,13 +13,11 @@ reward in Crossy Road every minute, around the clock, while you do something els
 [![No dependencies](https://img.shields.io/badge/dependencies-none-success)](#how-it-works)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**English** · [Русский](README.ru.md)
-
 <img src="docs/hero.jpg" alt="Crossy Farm — auto-farm Crossy Road coins on macOS" width="100%">
 
 <br><br>
 
-<a href="https://github.com/gellermanchik/crossy-road-auto-farm/releases/download/v1.3/Crossy-Farm-1.3.dmg"><img src="https://img.shields.io/badge/⬇_Download_the_app-Crossy_Farm_1.3_(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white" alt="Download Crossy Farm"></a>
+<a href="https://github.com/gellermanchik/crossy-road-auto-farm/releases/download/v1.4/Crossy-Farm-1.4.dmg"><img src="https://img.shields.io/badge/⬇_Download_the_app-Crossy_Farm_1.4_(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white" alt="Download Crossy Farm"></a>
 
 <br>
 <sub>👆 That's the only file you need to download. Everything else in this repo is just the source code.</sub>
@@ -49,9 +47,10 @@ What makes it nice:
   screen, so it adapts to any window size and position — not fragile fixed pixels.
 - 🧹 **Clean stop.** Closing the window kills everything — no background daemons,
   no orphaned processes, no leftover PID files.
-- 🌍 **Multi-language.** Reads the game's screens in English, Russian and the
-  Latin-script languages out of the box; Japanese/Korean/Chinese/Arabic need a
-  one-line OCR tweak.
+- 🌍 **Every game language.** Reads the screens in **all 13 of Crossy Road's
+  languages** out of the box — English, French, German, Italian, Spanish,
+  Portuguese, Indonesian, Russian, Japanese, Korean, Chinese (both) and Arabic —
+  via dual-pass OCR (Latin/Cyrillic + CJK/Arabic).
 
 > [!NOTE]
 > This is a single-player, offline game with no competitive multiplayer ladder.
@@ -68,7 +67,7 @@ What makes it nice:
 | **Xcode Command Line Tools** | Provides the system `python3` and `clang`. Install with `xcode-select --install`. |
 | **Crossy Road installed** | Get it free from the [App Store](https://apps.apple.com/app/crossy-road/id924373886). On a Mac, look for it under "iPhone & iPad Apps". |
 | **The "Remove Ads" purchase** ⭐ | **This is essential.** Without it, the free reward plays a video ad the bot can't skip, breaking the once-a-minute loop. With Remove Ads bought, the reward is granted instantly — and only then can the farm work. |
-| **Game language** | The bot reads the game's on-screen text. English, Russian and Latin-script languages (French, German, Spanish, Portuguese, Italian, Indonesian) work out of the box; Japanese/Korean/Chinese/Arabic need a one-line tweak (see [Troubleshooting](#non-latin-game-language-japanese-korean-chinese-arabic)). |
+| **Game language: any** | The bot reads the game's on-screen text in **all 13 in-game languages** out of the box — English, French, German, Italian, Spanish, Portuguese, Indonesian, Russian, Japanese, Korean, Chinese (Simplified & Traditional) and Arabic. |
 
 > [!IMPORTANT]
 > **In-game balance is per-device.** Even when you sign in with the same Game
@@ -83,7 +82,7 @@ What makes it nice:
 
 <img src="docs/installer.png" alt="Crossy Farm installer — drag the app onto Applications" width="460">
 
-1. Go to the [**Releases**](https://github.com/gellermanchik/crossy-road-auto-farm/releases/latest) page and download `Crossy-Farm-1.3.dmg`.
+1. Go to the [**Releases**](https://github.com/gellermanchik/crossy-road-auto-farm/releases/latest) page and download `Crossy-Farm-1.4.dmg`.
 2. Open the `.dmg`. A window titled **"Install Crossy Farm"** appears — **drag the 🐔 Crossy Farm app onto the Applications folder**. Afterwards, eject "Install Crossy Farm" from the desktop — that was just the installer box.
 3. On first launch macOS says it *"could not verify"* the app — expected for a free unsigned app. Open it via **System Settings → Privacy & Security → Open Anyway** (see [First launch](#first-launch-apple-could-not-verify) below).
 4. Grant the two permissions it asks for (see [Permissions](#grant-permissions)).
@@ -109,7 +108,7 @@ it in place). To also produce the installer disk image:
 
 ```bash
 pip3 install dmgbuild     # optional, builds the pretty installer DMG
-./package-dmg.sh          # -> dist/Crossy-Farm-1.3.dmg
+./package-dmg.sh          # -> dist/Crossy-Farm-1.4.dmg
 ```
 
 ---
@@ -253,13 +252,11 @@ xcode-select --install
 - Confirm both **Screen Recording** and **Accessibility** are enabled for Crossy Farm, then relaunch.
 - Make sure the Crossy Road window is fully visible (not minimized or behind another window).
 
-### Non-Latin game language (Japanese, Korean, Chinese, Arabic)
-English, Russian and Latin-script languages work out of the box. For a non-Latin
-game UI, two one-line edits + rebuild:
-1. In `src/crossy_lib.py`, add the OCR code (`ja`, `ko`, `zh-Hans`, `zh-Hant`, `ar`) to the `setRecognitionLanguages_([...])` list.
-2. The words for "TOP"/"FREE" in many languages are already in `DEATH_MARKERS` / `FREE_MARKERS` at the top of `src/crossy_farm.py` — add yours if missing.
-
-PRs welcome.
+### My game is in a language that isn't detected
+All 13 in-game languages work out of the box (dual-pass OCR). If yours somehow
+isn't recognized, add its OCR code to `_LANGS_CJK` in `src/crossy_lib.py` and the
+rank / FREE words to `DEATH_MARKERS` / `FREE_MARKERS` in `src/crossy_farm.py`, then
+rebuild. PRs welcome.
 
 ### Coins aren't showing up on my phone
 Expected — see the per-device balance note in [Requirements](#️-requirements--read-this-first).

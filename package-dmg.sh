@@ -12,7 +12,7 @@ set -euo pipefail
 
 APP_NAME="Crossy Farm"
 VOLNAME="Install Crossy Farm"   # the mounted disk is named distinctly from the app
-VERSION="1.3"
+VERSION="1.4"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST="$HERE/dist"
 APP="$DIST/$APP_NAME.app"

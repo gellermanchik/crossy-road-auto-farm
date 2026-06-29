@@ -109,11 +109,19 @@ def _slide_back(stop_check, win: dict) -> None:
         _sleep(BACK_INTERVAL, stop_check)
 
 
-def _is_main_menu(blocks: list) -> bool:
-    """Main menu shows the big CROSSY ROAD logo in the center; the death screen does
-    not. Matching the (Latin) logo separates 'play again' from 'collect the reward'
-    in EVERY language — no reliance on localized words."""
-    return any(any(m in b["text"].upper() for m in MENU_MARKERS) for b in blocks)
+def _is_death_screen(blocks: list, img) -> bool:
+    """Death screen detection, language-proof via two independent signals (either
+    is enough):
+      1) the rank WORD is shown (TOP / 最高 / ЛУЧШИЕ / MELHOR / …) — recognized in
+         most languages by the dual-pass OCR;
+      2) the blue reward banner is present (a pure-color signal) — covers locales
+         whose pixel-font text OCR garbles (e.g. Arabic).
+    Note: we deliberately do NOT key off the "Crossy Road" window title bar, which
+    appears on every screen."""
+    word = any(
+        any(m in b["text"].upper() for m in DEATH_MARKERS) for b in blocks
+    )
+    return word or cl.find_reward_button(img) is not None
 
 
 def _find_reward(img, blocks) -> tuple[float, float] | None:
@@ -128,12 +136,10 @@ def _find_reward(img, blocks) -> tuple[float, float] | None:
 
 def farm_loop(stop_check, on_reward, log: logging.Logger) -> None:
     """Main state-driven loop. stop_check()->bool; on_reward(total)->None.
-
-    The two screens are told apart by the CROSSY ROAD logo (menu only), NOT by
-    localized text, so it works in every game language:
-      - main menu              -> start a run and dump it;
-      - orange button, no logo -> death screen: grab the reward, go to menu, wait;
-      - no orange button       -> a run is in progress: keep hopping back."""
+      - death screen (rank word or blue reward banner) -> grab the reward if ready,
+        press orange to return to the menu, wait out the cooldown;
+      - orange button otherwise (menu) -> start a run and dump it;
+      - no orange button -> a run is in progress: keep hopping back."""
     rewards = 0
     while not stop_check():
         win = cl.find_game_window()
@@ -150,14 +156,8 @@ def farm_loop(stop_check, on_reward, log: logging.Logger) -> None:
             continue
         blocks = cl.ocr_blocks(img)
 
-        if _is_main_menu(blocks):
-            # Main menu (CROSSY ROAD logo): start a run and dump it backwards.
-            _press_orange(win, log, "Play — starting a run")
-            _sleep(RACE_LOAD, stop_check)
-            _slide_back(stop_check, win)
-            _sleep(DEATH_WAIT, stop_check)
-        elif cl.find_orange_button(img) is not None:
-            # Orange button without the logo => death screen. Grab reward if ready.
+        if _is_death_screen(blocks, img):
+            # Death screen: grab the reward if it's ready, then go to menu and wait.
             reward = _find_reward(img, blocks)
             if reward is not None:
                 cl.click_rel(win, *reward)
@@ -167,8 +167,23 @@ def farm_loop(stop_check, on_reward, log: logging.Logger) -> None:
                 on_reward(rewards)
                 _sleep(REWARD_WAIT, stop_check)
             _press_orange(win, log, "orange button — back to main menu")
+            # Cooldown is timed from THIS moment (pressing 'back to menu'). After it
+            # we start the next run right here — no extra screen-read/activate delay
+            # between the wait and Play, so the cycle is the cooldown + one run, nothing more.
             log.info("waiting %s s in menu (reward cooldown)", IDLE_SECONDS)
             _sleep(IDLE_SECONDS, stop_check)
+            if stop_check():
+                break
+            _press_orange(win, log, "Play — starting a run")
+            _sleep(RACE_LOAD, stop_check)
+            _slide_back(stop_check, win)
+            _sleep(DEATH_WAIT, stop_check)
+        elif cl.find_orange_button(img) is not None:
+            # Main menu: start a run and dump it backwards.
+            _press_orange(win, log, "Play — starting a run")
+            _sleep(RACE_LOAD, stop_check)
+            _slide_back(stop_check, win)
+            _sleep(DEATH_WAIT, stop_check)
         else:
             # A run is in progress (no orange button) — keep hopping back.
             _slide_back(stop_check, win)

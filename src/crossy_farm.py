@@ -37,8 +37,18 @@ COINS_PER_REWARD = 40  # coins granted per collected reward
 # regardless of the in-game locale. If your language is missing, add its word here:
 #   - DEATH_MARKERS: the rank label shown on the death screen (e.g. "BEST")
 #   - FREE_MARKERS:  the label on the free-reward button (e.g. "FREE")
-DEATH_MARKERS = ("BEST", "ЛУЧШ", "ПУЧШ")  # EN "BEST", RU "ЛУЧШИЕ" (OCR sometimes -> "ПУЧШИЕ")
-FREE_MARKERS = ("FREE", "БЕСП")           # EN "FREE", RU "БЕСПЛАТНО"
+DEATH_MARKERS = (
+    "TOP", "BEST",                                  # EN (game shows "TOP <n>")
+    "ЛУЧШ", "ПУЧШ",                                  # RU "ЛУЧШИЕ" (OCR may read Л as П)
+    "MEILLEUR", "MEJOR", "MIGLIOR", "MELHOR", "BESTE", "TERBAIK",  # FR/ES/IT/PT/DE/ID
+    "トップ", "ベスト", "最高", "최고", "最佳", "أفضل",      # JA/KO/ZH/AR
+)
+FREE_MARKERS = (
+    "FREE",                                         # EN
+    "БЕСП",                                         # RU "БЕСПЛАТНО"
+    "GRATUIT", "GRATIS", "GRÁTIS", "GRATUITO", "KOSTENLOS",  # FR/ES·IT·ID/PT/IT/DE
+    "無料", "무료", "免费", "免費", "مجان",                # JA/KO/ZH-s/ZH-t/AR
+)
 
 
 def setup_logging() -> logging.Logger:
@@ -96,10 +106,14 @@ def _slide_back(stop_check, win: dict) -> None:
 
 
 def _is_death_screen(blocks: list) -> bool:
-    """Detect the death screen by its record label (e.g. "BEST" / "ЛУЧШИЕ")."""
-    return any(
+    """Death screen detection. Primary: the record label is shown (e.g. "TOP" /
+    "ЛУЧШИЕ"). Fallback: the free-reward button is on screen — this makes it
+    language-proof, because if the record word isn't recognized, the FREE button
+    (matched in many languages) still gives the death screen away."""
+    has_record = any(
         any(m in b["text"].upper() for m in DEATH_MARKERS) for b in blocks
     )
+    return has_record or _find_free(blocks) is not None
 
 
 def farm_loop(stop_check, on_reward, log: logging.Logger) -> None:

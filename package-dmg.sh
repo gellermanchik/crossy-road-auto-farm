@@ -11,7 +11,7 @@
 set -euo pipefail
 
 APP_NAME="Crossy Farm"
-VERSION="1.0"
+VERSION="1.1"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST="$HERE/dist"
 APP="$DIST/$APP_NAME.app"

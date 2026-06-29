@@ -145,7 +145,11 @@ def ocr_blocks(img) -> list:
     req.setRecognitionLevel_(0)  # Accurate
     req.setUsesLanguageCorrection_(False)
     try:
-        req.setRecognitionLanguages_(["ru", "en"])
+        # "en" reliably reads all Latin-script game languages (EN/FR/DE/IT/ES/PT/ID),
+        # "ru" adds Cyrillic. Keep this set SMALL: adding CJK/Arabic here noticeably
+        # hurts Latin recognition (e.g. the "FREE" button stops being read). For a
+        # CJK/Arabic game UI, add that one language code here and rebuild.
+        req.setRecognitionLanguages_(["en", "ru"])
     except Exception:
         pass
     handler = Vision.VNImageRequestHandler.alloc().initWithCGImage_options_(img, {})

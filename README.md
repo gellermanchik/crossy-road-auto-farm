@@ -19,7 +19,7 @@ reward in Crossy Road every minute, around the clock, while you do something els
 
 <br><br>
 
-<a href="https://github.com/gellermanchik/crossy-road-auto-farm/releases/download/v1.0/Crossy-Farm-1.0.dmg"><img src="https://img.shields.io/badge/⬇_Download_the_app-Crossy_Farm_1.0_(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white" alt="Download Crossy Farm"></a>
+<a href="https://github.com/gellermanchik/crossy-road-auto-farm/releases/download/v1.1/Crossy-Farm-1.1.dmg"><img src="https://img.shields.io/badge/⬇_Download_the_app-Crossy_Farm_1.1_(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white" alt="Download Crossy Farm"></a>
 
 <br>
 <sub>👆 That's the only file you need to download. Everything else in this repo is just the source code.</sub>
@@ -82,7 +82,7 @@ What makes it nice:
 
 <img src="docs/installer.png" alt="Crossy Farm installer — drag the app onto Applications" width="460">
 
-1. Go to the [**Releases**](https://github.com/gellermanchik/crossy-road-auto-farm/releases/latest) page and download `Crossy-Farm-1.0.dmg`.
+1. Go to the [**Releases**](https://github.com/gellermanchik/crossy-road-auto-farm/releases/latest) page and download `Crossy-Farm-1.1.dmg`.
 2. Open the `.dmg`. A window appears — **drag the 🐔 Crossy Farm icon onto the Applications folder**.
 3. On first launch macOS says it *"could not verify"* the app — expected for a free unsigned app. Open it via **System Settings → Privacy & Security → Open Anyway** (see [First launch](#first-launch-apple-could-not-verify) below).
 4. Grant the two permissions it asks for (see [Permissions](#grant-permissions)).
@@ -108,7 +108,7 @@ it in place). To also produce the installer disk image:
 
 ```bash
 pip3 install dmgbuild     # optional, builds the pretty installer DMG
-./package-dmg.sh          # -> dist/Crossy-Farm-1.0.dmg
+./package-dmg.sh          # -> dist/Crossy-Farm-1.1.dmg
 ```
 
 ---

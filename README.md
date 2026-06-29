@@ -175,12 +175,11 @@ every cycle, so any size works.
 
 ## Which reward does it collect?
 
-Crossy Road's death screen can show two free items. Crossy Farm always grabs the
-**right one — the character button that refreshes once a minute** (the real coin
-reward, +40 coins). It never touches the **golden chest** on the left, which is a
-separate gift available only once every few hours.
+After each run, the death screen shows the free reward — the blue banner with a
+character. Crossy Farm clicks it to collect the coins (**+40 each, once a minute**),
+fully automatically.
 
-<img src="docs/reward.png" alt="Which reward Crossy Farm collects — the once-a-minute character button, not the chest" width="500">
+<img src="docs/reward.png" alt="The free reward Crossy Farm collects every minute" width="500">
 
 ---
 

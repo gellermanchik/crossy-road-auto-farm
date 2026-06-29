@@ -172,6 +172,21 @@ class FarmController(NSObject):
             self.status.setStringValue_("Stopping…")
             self.btn.setEnabled_(False)
             return
+        # Verify both permissions are actually ACTIVE before farming. Without this
+        # the bot would silently spin — seeing nothing or landing no clicks — which
+        # is exactly what a revoked/again-granted permission looks like.
+        screen, ax = self._check_permissions()
+        if not (screen and ax):
+            missing = []
+            if not screen:
+                missing.append("Screen Recording")
+            if not ax:
+                missing.append("Accessibility")
+            self.status.setStringValue_("⚠ Allow " + " + ".join(missing) + ", reopen app")
+            self.status.setTextColor_(_c(RED))
+            self._request_permissions()
+            self._open_privacy_settings(screen)
+            return
         self.stop_event.clear()
         self.rewards = 0
         self._shown = 0
@@ -183,6 +198,30 @@ class FarmController(NSObject):
         self.btn.layer().setBackgroundColor_(_c(RED).CGColor())
         self._btn_title("STOP")
         self._pulse(True)
+
+    @objc.python_method
+    def _check_permissions(self):
+        """Return (screen_recording_ok, accessibility_ok) for THIS app — the real
+        live state, so we never start farming when a permission was revoked."""
+        try:
+            screen = bool(Quartz.CGPreflightScreenCaptureAccess())
+        except Exception:
+            screen = True  # older macOS without the API: assume ok
+        try:
+            from ApplicationServices import AXIsProcessTrusted
+            ax = bool(AXIsProcessTrusted())
+        except Exception:
+            ax = True
+        return screen, ax
+
+    @objc.python_method
+    def _open_privacy_settings(self, screen_ok):
+        """Open the exact Privacy pane the user still needs to enable."""
+        import subprocess
+        pane = "Privacy_Accessibility" if screen_ok else "Privacy_ScreenCapture"
+        subprocess.run(
+            ["open", f"x-apple.systempreferences:com.apple.preference.security?{pane}"],
+            check=False)
 
     @objc.python_method
     def _run(self):

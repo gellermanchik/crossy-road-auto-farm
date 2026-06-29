@@ -19,7 +19,7 @@ reward in Crossy Road every minute, around the clock, while you do something els
 
 <br><br>
 
-<a href="https://github.com/gellermanchik/crossy-road-auto-farm/releases/download/v1.1/Crossy-Farm-1.1.dmg"><img src="https://img.shields.io/badge/⬇_Download_the_app-Crossy_Farm_1.1_(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white" alt="Download Crossy Farm"></a>
+<a href="https://github.com/gellermanchik/crossy-road-auto-farm/releases/download/v1.2/Crossy-Farm-1.2.dmg"><img src="https://img.shields.io/badge/⬇_Download_the_app-Crossy_Farm_1.2_(.dmg)-2ea44f?style=for-the-badge&logo=apple&logoColor=white" alt="Download Crossy Farm"></a>
 
 <br>
 <sub>👆 That's the only file you need to download. Everything else in this repo is just the source code.</sub>
@@ -82,7 +82,7 @@ What makes it nice:
 
 <img src="docs/installer.png" alt="Crossy Farm installer — drag the app onto Applications" width="460">
 
-1. Go to the [**Releases**](https://github.com/gellermanchik/crossy-road-auto-farm/releases/latest) page and download `Crossy-Farm-1.1.dmg`.
+1. Go to the [**Releases**](https://github.com/gellermanchik/crossy-road-auto-farm/releases/latest) page and download `Crossy-Farm-1.2.dmg`.
 2. Open the `.dmg`. A window appears — **drag the 🐔 Crossy Farm icon onto the Applications folder**.
 3. On first launch macOS says it *"could not verify"* the app — expected for a free unsigned app. Open it via **System Settings → Privacy & Security → Open Anyway** (see [First launch](#first-launch-apple-could-not-verify) below).
 4. Grant the two permissions it asks for (see [Permissions](#grant-permissions)).
@@ -108,7 +108,7 @@ it in place). To also produce the installer disk image:
 
 ```bash
 pip3 install dmgbuild     # optional, builds the pretty installer DMG
-./package-dmg.sh          # -> dist/Crossy-Farm-1.1.dmg
+./package-dmg.sh          # -> dist/Crossy-Farm-1.2.dmg
 ```
 
 ---
@@ -130,6 +130,21 @@ list and its toggle is **on**, then relaunch the app.
 > Grant the permissions to **Crossy Farm itself** — not to Terminal. The native
 > launcher exists precisely so macOS attaches permissions to the app, not to the
 > Python interpreter.
+
+> [!IMPORTANT]
+> **After updating the app** (or revoking and re-granting), macOS treats the new
+> build as a different app: re-enable both toggles for Crossy Farm and then
+> **quit and reopen the app** — permission changes only take effect on a fresh
+> launch. Since v1.2, if a permission is missing, clicking **START** tells you
+> exactly which one and opens the right settings pane, instead of silently
+> spinning with no effect.
+>
+> **Uninstalling?** Deleting the app leaves its Privacy entries behind (macOS
+> doesn't remove them). Clean them up in Terminal:
+> ```bash
+> tccutil reset ScreenCapture com.crossyfarm.app
+> tccutil reset Accessibility com.crossyfarm.app
+> ```
 
 ---
 

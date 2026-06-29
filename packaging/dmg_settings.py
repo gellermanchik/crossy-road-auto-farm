@@ -7,7 +7,8 @@ appname = "Crossy Farm.app"
 format = "UDZO"                       # compressed
 files = [application]
 symlinks = {"Applications": "/Applications"}
-icon = "src/icon.icns"                # volume icon (the chicken) shown for the .dmg
+# No custom volume icon on purpose: the installer should look like a standard
+# disk image so it's visually distinct from the chicken app icon inside it.
 
 background = "docs/dmg-background.png"  # 1280x800 = @2x of 640x400 (HiDPI)
 window_rect = ((200, 120), (640, 400))

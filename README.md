@@ -84,12 +84,12 @@ What makes it nice:
 
 1. Go to the [**Releases**](https://github.com/gellermanchik/crossy-road-auto-farm/releases/latest) page and download `Crossy-Farm-1.0.dmg`.
 2. Open the `.dmg`. A window appears — **drag the 🐔 Crossy Farm icon onto the Applications folder**.
-3. Open **Applications**, then **right-click → Open** on Crossy Farm (just once — see [Gatekeeper](#gatekeeper-this-app-is-from-an-unidentified-developer) below).
+3. On first launch macOS says it *"could not verify"* the app — expected for a free unsigned app. Open it via **System Settings → Privacy & Security → Open Anyway** (see [First launch](#first-launch-apple-could-not-verify) below).
 4. Grant the two permissions it asks for (see [Permissions](#grant-permissions)).
 5. Click **START**. Done.
 
-> The app is open-source and ad-hoc signed (not notarized by Apple), so the first
-> launch needs the right-click → Open step. After that it opens normally.
+> The app is open-source and ad-hoc signed (not paid-notarized by Apple), so the
+> first launch needs the one-time **Open Anyway** step. After that it opens normally.
 
 ---
 
@@ -207,9 +207,24 @@ cd "dist/Crossy Farm.app/Contents/Resources"
 
 ## Troubleshooting
 
-### Gatekeeper: "this app is from an unidentified developer"
-Right-click the app → **Open** → **Open**. You only do this once. (The app is
-ad-hoc signed and not notarized, which is normal for small open-source tools.)
+### First launch: "Apple could not verify…"
+Expected — the app isn't signed with a *paid* Apple Developer certificate (normal
+for free open-source tools; the full source is right here in this repo). On macOS 15
+(Sequoia) and macOS 26 (Tahoe) the old "right-click → Open" trick is gone, so:
+
+1. Double-click the app once — you'll see the warning. Click **Done** (not "Move to Trash").
+2. Open **System Settings → Privacy & Security**.
+3. Scroll to the **Security** section: you'll see *"Crossy Farm.app was blocked…"* with an **Open Anyway** button.
+4. Click **Open Anyway**, confirm with Touch ID / password.
+5. The app launches and never asks again.
+
+One-line alternative in Terminal (removes the download quarantine flag):
+```bash
+xattr -dr com.apple.quarantine "/Applications/Crossy Farm.app"
+```
+
+Removing the warning for *everyone* would need a paid Apple Developer ID ($99/year)
+to sign + notarize the app — overkill for a free tool, so it isn't done.
 
 ### "clang not found" / `python3` triggers an install prompt
 Install the Command Line Tools and retry:

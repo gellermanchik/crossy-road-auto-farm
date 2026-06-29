@@ -7,6 +7,7 @@ appname = "Crossy Farm.app"
 format = "UDZO"                       # compressed
 files = [application]
 symlinks = {"Applications": "/Applications"}
+icon = "src/icon.icns"                # volume icon (the chicken) shown for the .dmg
 
 background = "docs/dmg-background.png"  # 1280x800 = @2x of 640x400 (HiDPI)
 window_rect = ((200, 120), (640, 400))
